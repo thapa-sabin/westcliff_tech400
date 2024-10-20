@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Engine</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the external CSS file -->
+    <script>
+        async function search() {
+            const query = document.getElementById('query').value;
+            const response = await fetch(`http://127.0.0.1:5000/search?query=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            if (data.results.length > 0) {
+                data.results.forEach(result => {
+                    const resultItem = document.createElement('div');
+                    resultItem.classList.add('result-item');
+
+                    // Add image if it exists
+                    let imageHtml = result.image_url ? `<img src="${result.image_url}" alt="${result.document}" class="cover-image"/>` : '';
+                    resultItem.innerHTML = `
+                        ${imageHtml}
+                        <div>
+                            <h2>${result.document}</h2>
+                            <p class="score">Score: ${result.score}</p>
+                            <p>${result.snippet.replace(new RegExp(result.query, 'gi'), '<span class="highlight">$&</span>')}</p>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(resultItem);
+                });
+            } else {
+                resultsDiv.innerHTML = '<p>No results found.</p>';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Book Information Retrieval System</h1>
+        <div class="input-group">
+            <input type="text" id="query" placeholder="Enter your search query...">
+            <button onclick="search()">Search</button>
+        </div>
+        <div class="results" id="results"></div>
+    </div>
+</body>
+</html>
+
